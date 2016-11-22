@@ -81,7 +81,6 @@ func (km *KMeans) Fit(data [][]float64) error {
 // Assigns each datapoint to a cluster
 func (km *KMeans) assign(data [][]float64) {
 	km.PointsAssignment = make([]int, len(data))
-	//datapoints := make([]datapoint.Datapoint, len(data))
 
 	// Step 1: Assign each point to its nearest centroid
 	for i, entry := range data {
