@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"reflect"
+
 	"partitionclustering/centroid"
 	"partitionclustering/datapoint"
 	"partitionclustering/distances"
-	"reflect"
 )
 
 // KMeans represent a KMeans object.
@@ -80,7 +81,7 @@ func (km *KMeans) Fit(data [][]float64) error {
 // Assigns each datapoint to a cluster
 func (km *KMeans) assign(data [][]float64) {
 	km.PointsAssignment = make([]int, len(data))
-	datapoints := make([]datapoint.Datapoint, len(data))
+	//datapoints := make([]datapoint.Datapoint, len(data))
 
 	// Step 1: Assign each point to its nearest centroid
 	for i, entry := range data {
@@ -100,9 +101,11 @@ func (km *KMeans) assign(data [][]float64) {
 			}
 		}
 
-		// Up to this point we know which centroid won
+		// Up to this point we know which centroid won, aka. the closest centroid
 		km.Centroids[currentCentroid].TimesItWon++
 
+		// Keep the sum of the positions per dimension. This will be
+		// divided at a later stage by the number of times the centroid won
 		for featureIndex, feature := range entry {
 			km.Centroids[currentCentroid].DimensionSums[featureIndex] += feature
 		}
@@ -112,7 +115,7 @@ func (km *KMeans) assign(data [][]float64) {
 	}
 
 	//fmt.Printf("CC: %v\n", km.PointsAssignment)
-	km.Datapoints = datapoints
+	//km.Datapoints = datapoints
 
 }
 
