@@ -8,12 +8,12 @@ import (
 
 	dp "partitionclustering/datapoint"
 	"partitionclustering/distances"
+	"partitionclustering/errors"
 )
 
 // KMedoids represents a KMedoids
 type KMedoids struct {
 	NumClusters int
-	NumFeatures int
 	// Index of the datapoints used as medoids
 	Medoids           []int
 	Datapoints        []dp.Datapoint
@@ -24,10 +24,9 @@ type KMedoids struct {
 // NewKMedoids creates a KMedoids object.
 // This implementation of KMedoids uses the PAM (partitioning around medoids) method
 // http://www.math.le.ac.uk/people/ag153/homepage/KmeansKmedoids/Kmeans_Kmedoids.html
-func NewKMedoids(numClusters int, numFeatures int) *KMedoids {
+func NewKMedoids(numClusters int) *KMedoids {
 	return &KMedoids{
 		NumClusters:    numClusters,
-		NumFeatures:    numFeatures,
 		Medoids:        make([]int, numClusters),
 		DistanceMetric: distances.Manhattan, // for the moment use this one
 
@@ -36,11 +35,11 @@ func NewKMedoids(numClusters int, numFeatures int) *KMedoids {
 
 // Fit trains the KMedoids model
 func (km *KMedoids) Fit(data [][]float64) error {
-	km.PointsAssignments = make([]int, len(data))
-
-	if len(data[0]) != km.NumFeatures {
-		return fmt.Errorf("Number of dimensions is distinct than the number of features")
+	if km.NumClusters > len(data) {
+		return errors.NewNumClustersGreaterNumDataError(km.NumClusters, len(data))
 	}
+
+	km.PointsAssignments = make([]int, len(data))
 
 	for _, datapoint := range data {
 		km.Datapoints = append(km.Datapoints, *dp.NewDataPoint(datapoint))
