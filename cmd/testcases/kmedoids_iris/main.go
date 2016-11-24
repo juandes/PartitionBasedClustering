@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	kmedoids := kmedoids.NewKMedoids(3, 4)
+	kmedoids := kmedoids.NewKMedoids(3)
 	data, err := io.ReadData("../../../static/datasets/iris.csv")
 	if err != nil {
 		log.Fatal(err)
