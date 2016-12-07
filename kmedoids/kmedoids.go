@@ -67,6 +67,7 @@ func (km *KMedoids) Fit(data [][]float64) error {
 	var currentCost float64
 	var previousCost float64
 	var previousPointAssignments []int
+	previousPointAssignments = make([]int, len(data))
 
 	for {
 
@@ -78,9 +79,12 @@ func (km *KMedoids) Fit(data [][]float64) error {
 			break
 		}
 
+		for i := 0; i < len(km.PointsAssignments); i++ {
+			previousPointAssignments[i] = km.PointsAssignments[i]
+		}
+
 		// For each medoid object O
-		for _, medoid := range km.Medoids {
-			fmt.Printf("Evaluating medoid: %v\n", medoid)
+		for i, medoid := range km.Medoids {
 			// Randomly select a non medoid object O_random
 			var swapMedoid int
 			for {
@@ -92,16 +96,24 @@ func (km *KMedoids) Fit(data [][]float64) error {
 				swapMedoid = possibleMedoid
 				break
 			}
-			fmt.Printf("Current assignments %v\n", km.PointsAssignments)
 
-			//  Compute the total cost S of swapping medoid 0 with O_random
-			previousPointAssignments = km.PointsAssignments
+			for i := 0; i < len(km.PointsAssignments); i++ {
+				previousPointAssignments[i] = km.PointsAssignments[i]
+			}
+
+			// Compute the total cost S of swapping medoid 0 with O_random
 			currentCost = km.calculateCost(medoid, swapMedoid)
 
 			// if the new cost is greater than the previous one, revert the swapping
 			if currentCost > previousCost {
-				//fmt.Printf("Swapping reverted\n")
-				km.PointsAssignments = previousPointAssignments
+				for i := 0; i < len(km.PointsAssignments); i++ {
+					km.PointsAssignments[i] = previousPointAssignments[i]
+				}
+			} else {
+				// if the new cost is lower, the medoid is replaced with the new one
+				km.Medoids[i] = swapMedoid
+				km.Datapoints[medoid].IsMedoid = false
+				km.Datapoints[swapMedoid].IsMedoid = true
 			}
 
 		}
@@ -138,14 +150,12 @@ func (km *KMedoids) assign() float64 {
 		// At this point we know to which medoid a datapoint i is associated
 		km.PointsAssignments[i] = currentMedoid
 		currentTotalCost += currentDistance
-		fmt.Printf("Data point %v assign to medoid %v distance %v total current cost: %v\n", i, currentMedoid, currentDistance, currentTotalCost)
 	}
 
 	return currentTotalCost
 }
 
 func (km *KMedoids) calculateCost(originalMedoid, swapMedoid int) float64 {
-	fmt.Printf("Original medoid: %v Swapping medoid: %v\n", originalMedoid, swapMedoid)
 	var totalCost float64
 	for i, datapoint := range km.Datapoints {
 		var currentCost float64
