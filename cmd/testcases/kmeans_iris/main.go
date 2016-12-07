@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"partitionclustering/cmd/testcases/io"
 	"partitionclustering/kmeans"
 
@@ -15,8 +16,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = kmeans.Fit(data)
+	result, err := kmeans.Fit(data)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf("Intercluster distance: %v\n", result.InterclusterDistance)
 }
